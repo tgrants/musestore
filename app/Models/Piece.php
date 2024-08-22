@@ -8,4 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Piece extends Model
 {
     use HasFactory;
+
+    public function items()
+    {
+        return $this->hasMany(Item::class);
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
 }

@@ -9,8 +9,13 @@ class Tag extends Model
 {
     use HasFactory;
 
-    public function categories()
+    public function category()
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsTo(Category::class);
+    }
+
+    public function pieces()
+    {
+        return $this->belongsToMany(Piece::class);
     }
 }

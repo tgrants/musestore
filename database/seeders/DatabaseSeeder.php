@@ -23,5 +23,13 @@ class DatabaseSeeder extends Seeder
             'admin' => true,
             'password' => 'admin',
         ]);
+
+        // Create a non-admin test user
+        User::factory()->create([
+            'name' => 'test',
+            'email' => 'test@example.com',
+            'admin' => false,
+            'password' => 'test',
+        ]);
     }
 }
