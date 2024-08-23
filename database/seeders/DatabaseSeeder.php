@@ -14,9 +14,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        // Create an admin
+        // Create an admin user
         User::factory()->create([
             'name' => 'admin',
             'email' => 'email@example.com',
@@ -24,10 +22,8 @@ class DatabaseSeeder extends Seeder
             'password' => 'admin',
         ]);
 
-        // Create a non-admin test user
-        User::factory()->create([
-            'name' => 'test',
-            'email' => 'test@example.com',
+        // Create 50 non-admin users
+        User::factory(50)->create([
             'admin' => false,
             'password' => 'test',
         ]);

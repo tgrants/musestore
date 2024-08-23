@@ -37,7 +37,7 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        return view('users.show', compact('user'));
+        //
     }
 
     /**
@@ -55,10 +55,24 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string',
+            'enabled' => 'required|boolean',
+            'admin' => 'required|boolean',
         ]);
 
-        $user->update($validated);
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['error' => 'User not found.'], 404);
+        }
+
+        if ($request->filled('password')) {
+            $user->password = bcrypt($validated['password']);
+        }
+
+        $user->name = $validated['name'];
+        $user->enabled = $validated['enabled'];
+        $user->admin = $validated['admin'];
+        $user->save();
 
         return response()->json(['success' => 'User updated successfully.']);
     }
@@ -68,6 +82,12 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $user = User::find($id);
+        if (!$user) {
+            return response()->json(['error' => 'User not found.'], 404);
+        }
+
+        $user->delete();
+        return response()->json(['success' => 'User deleted successfully.']);
     }
 }
