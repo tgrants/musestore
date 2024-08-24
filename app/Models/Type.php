@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Type extends Model
 {
+    public $timestamps = false;
+
     use HasFactory;
 
     public function items()

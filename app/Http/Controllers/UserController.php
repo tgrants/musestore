@@ -27,9 +27,24 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+    
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'password' => 'required|string',
+            'enabled' => 'required|boolean',
+            'admin' => 'required|boolean',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'password' => $validated['password'],
+            'enabled' => $validated['enabled'],
+            'admin' => $validated['admin'],
+        ]);
+
+        return response()->json(['message' => 'User added successfully.', 'user' => $user], 201);
     }
 
     /**
