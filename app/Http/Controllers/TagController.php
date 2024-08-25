@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 
 class TagController extends Controller
@@ -11,7 +13,9 @@ class TagController extends Controller
      */
     public function index()
     {
-        //
+        $tags = Tag::with('category')->get();
+        $categories = Category::all();
+        return view('tags.index', compact('tags', 'categories'));
     }
 
     /**
@@ -27,7 +31,17 @@ class TagController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+        ]);
+
+        $tag = Tag::create([
+            'name' => $validated['name'],
+            'category_id' => $validated['category_id'],
+        ]);
+
+        return response()->json(['message' => 'Tag added successfully.', 'tag' => $tag], 201);
     }
 
     /**
@@ -51,7 +65,21 @@ class TagController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+        ]);
+
+        $tag = Tag::find($id);
+        if (!$tag) {
+            return response()->json(['error' => 'Tag not found.'], 404);
+        }
+
+        $tag->name = $validated['name'];
+        $tag->category_id = $validated['category_id'];
+        $tag->save();
+
+        return response()->json(['success' => 'Tag updated successfully.']);
     }
 
     /**
@@ -59,6 +87,12 @@ class TagController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $tag = Tag::find($id);
+        if (!$tag) {
+            return response()->json(['error' => 'Tag not found.'], 404);
+        }
+
+        $tag->delete();
+        return response()->json(['success' => 'Tag deleted successfully.']);
     }
 }

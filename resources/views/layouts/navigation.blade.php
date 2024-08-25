@@ -17,8 +17,17 @@
                             <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.index')">
                                 {{ __('Users') }}
                             </x-nav-link>
+                            <x-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.index')">
+                                {{ __('Categories') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('tags.index')" :active="request()->routeIs('tags.index')">
+                                {{ __('Tags') }}
+                            </x-nav-link>
                         @endif
                     @endauth
+                    <x-nav-link :href="route('pieces.index')" :active="request()->routeIs('pieces.index')">
+                        {{ __('Pieces') }}
+                    </x-nav-link>
                 </div>
             </div>
 

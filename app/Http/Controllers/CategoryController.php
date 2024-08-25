@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -11,7 +12,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        $categories = Category::all();
+        return view('categories.index', compact('categories'));
     }
 
     /**
@@ -27,7 +29,15 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $category = new Category();
+        $category->name = $request['name'];
+        $category->save();
+
+        return response()->json(['success' => 'Category added successfully.']);
     }
 
     /**
@@ -51,7 +61,19 @@ class CategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $category = Category::find($id);
+        if (!$category) {
+            return response()->json(['error' => 'Category not found.'], 404);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $category->name = $request['name'];
+        $category->save();
+
+        return response()->json(['success' => 'Category updated successfully.']);
     }
 
     /**
@@ -59,6 +81,12 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $category = Category::find($id);
+        if (!$category) {
+            return response()->json(['error' => 'Category not found.'], 404);
+        }
+
+        $category->delete();
+        return response()->json(['success' => 'Category deleted successfully.']);
     }
 }

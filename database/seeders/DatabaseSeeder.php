@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
+use App\Models\Item;
+use App\Models\Piece;
 use App\Models\Tag;
 use App\Models\Type;
 use App\Models\User;
@@ -32,9 +34,9 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Create media types
-        Type::factory()->create(['name' => 'Audio']);
-        Type::factory()->create(['name' => 'Sheet music']);
-        Type::factory()->create(['name' => 'Muse Score']);
+        $type_audio = Type::factory()->create(['name' => 'Audio']);
+        $type_sheet = Type::factory()->create(['name' => 'Sheet music']);
+        $type_musescore = Type::factory()->create(['name' => 'Muse Score']);
 
         // Create categories and tags
         // Grade
@@ -71,5 +73,40 @@ class DatabaseSeeder extends Seeder
             return new Tag(['name' => $instrument]);
         });
         $category_instruments->tags()->saveMany($tags_instruments);
+
+        // Pieces and items
+        $piece1 = Piece::factory()->create(['name' => 'Piece 1']);
+        $piece2 = Piece::factory()->create(['name' => 'Piece 2']);
+        $piece3 = Piece::factory()->create(['name' => 'Piece 3']);
+
+        // Create items linked to pieces and types
+        $item1 = Item::factory()->create([
+            'name' => 'Item 1',
+            'filepath' => 'path/to/file1',
+            'type_id' => $type_audio->id,
+            'piece_id' => $piece1->id,
+        ]);
+
+        $item2 = Item::factory()->create([
+            'name' => 'Item 2',
+            'filepath' => 'path/to/file2',
+            'type_id' => $type_sheet->id,
+            'piece_id' => $piece2->id,
+        ]);
+
+        $item3 = Item::factory()->create([
+            'name' => 'Item 3',
+            'filepath' => 'path/to/file3',
+            'type_id' => $type_musescore->id,
+            'piece_id' => $piece3->id,
+        ]);
+
+        // Attach tags to pieces
+        $tag1 = Tag::first(); // Assume the first tag in the database
+        $tag2 = Tag::skip(1)->first(); // Assume the second tag in the database
+
+        $piece1->tags()->attach([$tag1->id, $tag2->id]);
+        $piece2->tags()->attach([$tag1->id]);
+        $piece3->tags()->attach([$tag2->id]);
     }
 }
