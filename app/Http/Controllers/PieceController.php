@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Piece;
 use App\Models\Tag;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class PieceController extends Controller
@@ -11,11 +12,20 @@ class PieceController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $pieces = Piece::with('tags')->get();
         $tags = Tag::all();
-        return view('pieces.index', compact('pieces', 'tags'));
+        $categories = Category::all();
+
+        if ($request->has('tags') && !empty($request->tags)) {
+            $pieces = Piece::whereHas('tags', function($query) use ($request) {
+                $query->whereIn('tags.id', $request->tags);
+            })->get();
+        } else {
+            $pieces = Piece::all();
+        }
+
+        return view('pieces.index', compact('pieces', 'tags', 'categories'));
     }
 
     /**

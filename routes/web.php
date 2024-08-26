@@ -14,7 +14,6 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     // Pieces
     Route::get('/pieces', [PieceController::class, 'index'])->name('pieces.index');
-    Route::post('/pieces', [PieceController::class, 'store'])->name('pieces.store');
     Route::get('/pieces/{piece}', [PieceController::class, 'show'])->name('pieces.show');
 
     // Profile
@@ -29,6 +28,9 @@ Route::middleware('auth', 'admin')->group(function () {
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::patch('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+    // Pieces
+    Route::post('/pieces', [PieceController::class, 'store'])->name('pieces.store');
 
     // Tags
     Route::get('/tags', [TagController::class, 'index'])->name('tags.index');
