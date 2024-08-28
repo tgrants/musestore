@@ -29,8 +29,13 @@ Route::middleware('auth', 'admin')->group(function () {
     Route::patch('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
+    // Items
+    Route::post('/items', [ItemController::class, 'store'])->name('items.store');
+    Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
+
     // Pieces
-    Route::post('/pieces', [PieceController::class, 'store'])->name('pieces.store');
+    Route::post('/pieces', [PieceController::class, 'store'])->name('pieces.store'); 
+    Route::delete('/pieces/{piece}', [PieceController::class, 'destroy'])->name('pieces.destroy');
 
     // Tags
     Route::get('/tags', [TagController::class, 'index'])->name('tags.index');

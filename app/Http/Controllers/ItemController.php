@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Item;
 use Illuminate\Http\Request;
 
 class ItemController extends Controller
@@ -27,7 +28,21 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'file' => 'required|file',
+            'piece_id' => 'required|exists:pieces,id',
+        ]);
+
+        $filePath = $request->file('file')->store('items', 'public');
+
+        $item = new Item();
+        $item->name = $request->input('name');
+        $item->filepath = $filePath;
+        $item->piece_id = $request->input('piece_id');
+        $item->save();
+
+        return redirect()->route('pieces.show', $item->piece_id)->with('success', 'Item added successfully.');
     }
 
     /**
@@ -59,6 +74,12 @@ class ItemController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $item = Item::findOrFail($id);
+
+        Storage::disk('public')->delete($item->filepath);
+
+        $item->delete();
+
+        return redirect()->route('pieces.show', $item->piece_id)->with('success', 'Item deleted successfully.');
     }
 }

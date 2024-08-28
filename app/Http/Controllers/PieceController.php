@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Item;
 use App\Models\Piece;
 use App\Models\Tag;
 use App\Models\Category;
@@ -83,8 +84,22 @@ class PieceController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        // Retrieve the piece by its id
+        $piece = Piece::findOrFail($id);
+
+        // Delete associated items and their files
+        foreach ($piece->items as $item) {
+            // Delete the file from storage
+            Storage::disk('public')->delete($item->filepath);
+            // Delete the item record
+            $item->delete();
+        }
+
+        // Delete the piece itself
+        $piece->delete();
+
+        return redirect()->route('pieces.index')->with('success', 'Piece deleted successfully.');
     }
 }
