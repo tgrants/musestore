@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Item;
 use App\Models\Piece;
 use App\Models\Tag;
-use App\Models\Category;
+use App\Models\Type;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 
 class PieceController extends Controller
@@ -62,7 +64,9 @@ class PieceController extends Controller
     public function show(string $id)
     {
         $piece = Piece::with(['items', 'tags'])->findOrFail($id);
-        return view('pieces.show', compact('piece'));
+        $types = Type::orderBy('name')->get();
+
+        return view('pieces.show', compact('piece', 'types'));
     }
 
     /**

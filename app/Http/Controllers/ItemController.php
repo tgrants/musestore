@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Item;
+use App\Models\Type;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 
 class ItemController extends Controller
@@ -28,21 +30,26 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'file' => 'required|file',
+            'type_id' => 'required|exists:types,id',
             'piece_id' => 'required|exists:pieces,id',
         ]);
 
-        $filePath = $request->file('file')->store('items', 'public');
+        $originalFileName = $request->file('file')->getClientOriginalName();
+        // $filePath = $request->file('file')->storeAs('uploads', $originalFileName);
+        $filePath = $request->file('file')->store('uploads', 'public');
 
         $item = new Item();
-        $item->name = $request->input('name');
+        $item->name = $validated['name'];
         $item->filepath = $filePath;
-        $item->piece_id = $request->input('piece_id');
+        $item->type_id  = $validated['type_id'];
+        $item->piece_id = $validated['piece_id'];
         $item->save();
 
-        return redirect()->route('pieces.show', $item->piece_id)->with('success', 'Item added successfully.');
+        //return redirect()->route('pieces.show', $item->piece_id)->with('success', 'Item added successfully.');
+        return response()->json(['success' => 'Item added successfully.']);
     }
 
     /**
@@ -80,6 +87,6 @@ class ItemController extends Controller
 
         $item->delete();
 
-        return redirect()->route('pieces.show', $item->piece_id)->with('success', 'Item deleted successfully.');
+        return response()->json(['success' => 'Item deleted successfully.']);
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ItemController;
 use App\Http\Controllers\PieceController;
 // use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TagController;

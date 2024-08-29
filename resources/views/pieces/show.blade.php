@@ -20,7 +20,7 @@
                     @foreach ($piece->items as $item)
                         <li id="item-{{ $item->id }}">
                             {{ $item->name }} - 
-                            <a href="{{ $item->filepath }}" class="text-blue-600 hover:underline">Download</a>
+                            <a href="{{ Storage::url($item->filepath) }}" class="text-blue-600 hover:underline">Download</a>
                             @if(auth()->check() && auth()->user()->admin)
                                 <button class="delete-item-btn text-red-500 ml-2" data-id="{{ $item->id }}">Delete</button>
                             @endif
@@ -30,37 +30,54 @@
             </div>
 
             @if(auth()->check() && auth()->user()->admin)
-                <form id="upload-item-form" class="space-y-4" enctype="multipart/form-data">
+                <form id="upload-item-form" method="POST" enctype="multipart/form-data">
                     @csrf
                     <div>
                         <label for="item-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item Name</label>
                         <input type="text" id="item-name" name="name" required class="mt-1 block w-full p-2 border rounded-md" />
                     </div>
+
+                    <div>
+                        <label for="type_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Item Type</label>
+                        <select id="type_id" name="type_id" required class="mt-1 block w-full p-2 border rounded-md">
+                            @foreach($types as $type)
+                                <option value="{{ $type->id }}">{{ $type->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <div>
                         <label for="item-file" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Upload File</label>
                         <input type="file" id="item-file" name="file" required class="mt-1 block w-full p-2 border rounded-md" />
                     </div>
-                    <button type="submit" class="bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-400">
-                        Add Item
-                    </button>
+
+                    <div class="py-4">
+                        <button type="submit" class="bg-indigo-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-400">
+                            Add Item
+                        </button>
+                    </div>
                 </form>
-
-                <button id="delete-piece-btn" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-red-400 mt-4">
-                    Delete Piece
-                </button>
             @endif
-        </div>
 
-        <a href="{{ route('pieces.index') }}" class="text-indigo-500 hover:underline mt-4 inline-block">
-            Back to list
-        </a>
+            @if(auth()->check() && auth()->user()->admin)
+                <div class="py-4">
+                    <button id="delete-piece-btn" class="bg-red-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-red-400">
+                        Delete Piece
+                    </button>
+                </div>
+            @endif
+
+            <a href="{{ route('pieces.index') }}" class="text-indigo-500 hover:underline mt-4 inline-block">
+                Back to list
+            </a>
+        </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
         $(document).ready(function() {
             // Handle Item Deletion
-            $('.delete-item-btn').on('click', function() {
+            $('.delete-item-btn').on('click', function(event) {
                 var itemId = $(this).data('id');
                 $.ajax({
                     url: '/items/' + itemId,
@@ -78,26 +95,34 @@
                 });
             });
 
-            $('#delete-piece-btn').on('click', function() {
-                $.ajax({
-                    url: '{{ route("pieces.destroy", $piece->id) }}',
-                    type: 'DELETE',
-                    data: {
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        alert('Piece deleted successfully.');
-                        window.location.href = '{{ route("pieces.index") }}';
-                    },
-                    error: function(response) {
-                        alert('Error: ' + response.responseJSON.message);
-                    }
-                });
+            // Handle Piece Deletion
+            $('#delete-piece-btn').on('click', function(event) {
+                event.preventDefault();
+                if(confirm('Are you sure you want to delete this piece?')) {
+                    $.ajax({
+                        url: '{{ route("pieces.destroy", $piece->id) }}',
+                        type: 'DELETE',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            alert('Piece deleted successfully.');
+                            window.location.href = '{{ route("pieces.index") }}';
+                        },
+                        error: function(response) {
+                            alert('Error: ' + response.responseJSON.message);
+                        }
+                    });
+                }
             });
 
+            // Handle Item Upload
             $('#upload-item-form').on('submit', function(event) {
                 event.preventDefault();
                 var formData = new FormData(this);
+
+                // Add piece_id to the form data
+                formData.append('piece_id', '{{ $piece->id }}');
 
                 $.ajax({
                     url: '{{ route("items.store") }}',
@@ -106,15 +131,9 @@
                     processData: false,
                     contentType: false,
                     success: function(response) {
-                        $('#item-list').append(`
-                            <li id="item-${response.item.id}">
-                                ${response.item.name} - 
-                                <a href="${response.item.filepath}" class="text-blue-600 hover:underline">Download</a>
-                                <button class="delete-item-btn text-red-500 ml-2" data-id="${response.item.id}">Delete</button>
-                            </li>
-                        `);
-                        alert('Item added successfully.');
-                        $('#upload-item-form')[0].reset();
+                        // alert(response.success);
+                        location.reload();
+                        //$('#upload-item-form')[0].reset();
                     },
                     error: function(response) {
                         alert('Error: ' + response.responseJSON.message);
